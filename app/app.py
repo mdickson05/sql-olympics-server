@@ -10,8 +10,8 @@ def create_db_connection():
         connection = mysql.connector.connect(
             host='localhost',
             database='db_21549225',
-            user='me',
-            password='myUserPassword'
+            user='dsuser',
+            password='userCreateSQL'
         )
         return connection # if connection is successful, will return
     except Error as e:
