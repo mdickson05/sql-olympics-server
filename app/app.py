@@ -31,9 +31,9 @@ def athletes():
     connection = create_db_connection()
     if connection:
         try:
-            cursor = connection.cursor(dictionary=True) # cursor object for row by row access
+            cursor = connection.cursor(dictionary=True) # create new cursor that maps rows to columns, easier access
             cursor.execute("SELECT * FROM Athlete")
-            athletes = cursor.fetchall() # fetches all rows anyways
+            athletes = cursor.fetchall() # fetches all rows
             return render_template('athletes.html', athletes=athletes)
         except Error as e: # any database errors will be caught and printed
             print(f"Error: {e}")
@@ -51,7 +51,7 @@ def add_athlete():
     if request.method == 'GET':
         return render_template('add_athlete.html') 
     # Otherwise, if we are trying to submit a request to add an athlete to the DB (i.e. a POST)
-    elif request.method == 'POST':
+    else:
         # retrieve these variables from the JSON body
         athleteID = request.form['athleteID']
         name = request.form['name']
@@ -60,7 +60,10 @@ def add_athlete():
         countryCode = request.form['countryCode']
         # retrieve a connection
         connection = create_db_connection()
-        if connection:
+
+        if not connection: # if connection fails
+            return "Error connecting to the database"
+        else:
             try:
                 cursor = connection.cursor() # cursor allows for parameterised input
                 query = "INSERT INTO Athlete (athleteID, name, birthdate, gender, countryCode) VALUES (%s, %s, %s, %s, %s)"
@@ -74,7 +77,62 @@ def add_athlete():
                 if connection.is_connected():
                     cursor.close()
                     connection.close()
+
+# Route to update an athlete
+@app.route('/update_athlete/<athleteID>', methods=['GET', 'POST'])
+# double route methods for webpage retrieval (GET) and form submission (POST)
+def update_athlete(athleteID):
+    connection = create_db_connection() # tries to connect to the database
+    if not connection: # if not successful...
         return "Error connecting to the database"
+    else:
+        try:
+            cursor = connection.cursor(dictionary=True) # create new cursor that maps rows to columns, easier access
+            if request.method == 'POST':
+                # retrieve variables from JSON form
+                name = request.form['name']
+                birthdate = request.form['birthdate']
+                gender = request.form['gender']
+                countryCode = request.form['countryCode']
+                
+                # updates the values in the database using parameterised input
+                query = "UPDATE Athlete SET name=%s, birthdate=%s, gender=%s, countryCode=%s WHERE athleteID=%s"
+                values = (name, birthdate, gender, countryCode, athleteID)
+                cursor.execute(query, values)
+                connection.commit()
+                # redirects back to table
+                return redirect(url_for('athletes'))
+            else:
+                # fetch the athlete
+                cursor.execute("SELECT * FROM Athlete WHERE athleteID=%s", (athleteID,))
+                athlete = cursor.fetchone() # only fetch ONE athlete from the SELECT statement (should only be one as unique key)
+                # render the update_athlete webpage
+                return render_template('update_athlete.html', athlete=athlete)
+        except Error as e:
+            print(f"Error: {e}")
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
+    
+
+# Route to delete an athlete
+@app.route('/delete_athlete/<athleteID>')
+def delete_athlete(athleteID):
+    connection = create_db_connection()
+    if connection:
+        try:
+            cursor = connection.cursor()
+            cursor.execute("DELETE FROM Athlete WHERE athleteID=%s", (athleteID,))
+            connection.commit()
+            return redirect(url_for('athletes'))
+        except Error as e:
+            print(f"Error: {e}")
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
+    return "Error connecting to the database"
 
 # test connection - made for testing whether the database was actually working
 @app.route('/test_connection')

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Athlete</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Update Athlete</h1>
+        
+        <!-- Form to update athlete information -->
+        <form action="{{ url_for('update_athlete', athleteID=athlete['athleteID']) }}" method="POST" class="mt-4">
+            
+            <!-- Athlete Name -->
+            <div class="form-group">
+                <label for="name">Athlete Name</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ athlete['name'] }}" required>
+            </div>
+
+            <!-- Birthdate -->
+            <div class="form-group">
+                <label for="birthdate">Birthdate</label>
+                <input type="date" class="form-control" id="birthdate" name="birthdate" value="{{ athlete['birthdate'] }}" required>
+            </div>
+
+            <!-- Gender -->
+            <div class="form-group">
+                <label for="gender">Gender</label>
+                <select class="form-control" id="gender" name="gender" required>
+                    <option value="M" {% if athlete['gender'] == 'M' %} selected {% endif %}>Male</option>
+                    <option value="F" {% if athlete['gender'] == 'F' %} selected {% endif %}>Female</option>
+                </select>
+            </div>
+
+            <!-- Country Code -->
+            <div class="form-group">
+                <label for="countryCode">Country Code</label>
+                <input type="text" class="form-control" id="countryCode" name="countryCode" value="{{ athlete['countryCode'] }}" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Update Athlete</button>
+            <a href="{{ url_for('athletes') }}" class="btn btn-secondary">Back to Athletes</a>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

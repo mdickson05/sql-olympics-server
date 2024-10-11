@@ -21,6 +21,7 @@
                     <th>Birthdate</th>
                     <th>Country Code</th>
                     <th>Gender</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,6 +33,9 @@
                             <td>{{ athlete.birthdate }}</td>
                             <td>{{ athlete.countryCode }}</td>
                             <td>{{ athlete.gender }}</td>
+                            <td>
+                                <a href="/update_athlete/{{athlete.athleteID}}">Update athlete</button>
+                            </td>
                         </tr>
                     {% endfor %}
                 {% else %}
