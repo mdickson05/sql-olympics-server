@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 import mysql.connector
 from mysql.connector import Error
 
@@ -31,17 +31,50 @@ def athletes():
     connection = create_db_connection()
     if connection:
         try:
-            cursor = connection.cursor(dictionary=True)
+            cursor = connection.cursor(dictionary=True) # cursor object for row by row access
             cursor.execute("SELECT * FROM Athlete")
-            athletes = cursor.fetchall()
+            athletes = cursor.fetchall() # fetches all rows anyways
             return render_template('athletes.html', athletes=athletes)
-        except Error as e:
+        except Error as e: # any database errors will be caught and printed
             print(f"Error: {e}")
-        finally:
+        finally: # will run regardless of errors.
             if connection.is_connected():
                 cursor.close()
                 connection.close()
     return "Error connecting to the database"
+
+# Route to add a new athlete
+# Uses two methods - GET to access webpage, POST to actually insert the values
+@app.route('/add_athlete', methods=['GET', 'POST'])
+def add_athlete():
+    # IF the request is a GET request, will redirect to add_athlete page without issue
+    if request.method == 'GET':
+        return render_template('add_athlete.html') 
+    # Otherwise, if we are trying to submit a request to add an athlete to the DB (i.e. a POST)
+    elif request.method == 'POST':
+        # retrieve these variables from the JSON body
+        athleteID = request.form['athleteID']
+        name = request.form['name']
+        birthdate = request.form['birthdate']
+        gender = request.form['gender']
+        countryCode = request.form['countryCode']
+        # retrieve a connection
+        connection = create_db_connection()
+        if connection:
+            try:
+                cursor = connection.cursor() # cursor allows for parameterised input
+                query = "INSERT INTO Athlete (athleteID, name, birthdate, gender, countryCode) VALUES (%s, %s, %s, %s, %s)"
+                values = (athleteID, name, birthdate, gender, countryCode)
+                cursor.execute(query, values) # executes the command via parameterised input - prevents SQL injection
+                connection.commit() # SAVES the changes to the database
+                return redirect(url_for('athletes')) # redirects to athletes table to see changes
+            except Error as e: # any database errors will be caught and printed
+                print(f"Error: {e}")
+            finally: # will run regardless of errors.
+                if connection.is_connected():
+                    cursor.close()
+                    connection.close()
+        return "Error connecting to the database"
 
 # test connection - made for testing whether the database was actually working
 @app.route('/test_connection')
