@@ -120,7 +120,9 @@ def update_athlete(athleteID):
 @app.route('/delete_athlete/<athleteID>')
 def delete_athlete(athleteID):
     connection = create_db_connection()
-    if connection:
+    if not connection:
+        return "Error connecting to the database"
+    else:
         try:
             cursor = connection.cursor()
             cursor.execute("DELETE FROM Athlete WHERE athleteID=%s", (athleteID,))
@@ -132,7 +134,7 @@ def delete_athlete(athleteID):
             if connection.is_connected():
                 cursor.close()
                 connection.close()
-    return "Error connecting to the database"
+   
 
 # test connection - made for testing whether the database was actually working
 @app.route('/test_connection')
