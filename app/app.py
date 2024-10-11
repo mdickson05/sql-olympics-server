@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import mysql.connector
 from mysql.connector import Error
 
@@ -126,6 +126,137 @@ def delete_athlete(athleteID):
         if connection.is_connected():
             cursor.close()
             connection.close()
+
+# executes the query via supplied name
+@app.route('/execute_query/<query_name>')
+def execute_query(query_name):
+    queries = {
+        'athletes_born_after_2000': """
+            SELECT name, birthdate 
+            FROM Athlete
+            WHERE birthdate >= '2000-01-01'
+        """,
+        'athletes_starting_with_a': """
+            SELECT name, gender 
+            FROM Athlete 
+            WHERE name LIKE 'A%'
+        """,
+        'events_in_august': """
+            SELECT name, date
+            FROM Events
+            WHERE date > '2024-08-01' AND date < '2024-08-31'
+        """,
+        'events_after_dinner': """
+            SELECT name, date
+            FROM Events
+            WHERE TIME(date) > '17:00:00'
+        """,
+        'gold_medal_winners': """
+            SELECT a.name, m.numMedals
+            FROM Athlete a 
+            JOIN Medallist m ON a.athleteID = m.athleteID
+            WHERE m.numGold >= 1
+        """,
+        'num_athletes_per_event': """
+            SELECT e.name, COUNT(ci.athleteID) AS numParticipants
+            FROM Events e
+            JOIN CompetesIn ci ON e.eventID = ci.eventID
+            GROUP BY e.name
+            ORDER BY numParticipants DESC
+        """,
+        'total_medals_by_country': """
+            SELECT ci.name, ci.countryCode, 
+                SUM(m.numGold) AS totalGold, 
+                SUM(m.numSilver) AS totalSilver, 
+                SUM(m.numBronze) AS totalBronze, 
+                SUM(m.numMedals) AS totalMedals
+            FROM Country ci
+            JOIN Athlete a ON ci.countryCode = a.countryCode
+            JOIN Medallist m ON a.athleteID = m.athleteID
+            GROUP BY ci.name, ci.countryCode
+            ORDER BY totalMedals DESC
+        """,
+        'oldest_swimmers': """
+            SELECT a.name, 
+                a.birthdate, 
+                TIMESTAMPDIFF(YEAR, a.birthdate, CURDATE()) AS age,
+                GROUP_CONCAT(e.name SEPARATOR ', ') as Events
+            FROM Athlete a
+            JOIN CompetesIn ci ON a.athleteID = ci.athleteID
+            JOIN Events e ON ci.eventID = e.eventID
+            WHERE e.sportID = 'SWM'
+            GROUP BY a.athleteID
+            ORDER BY a.birthdate ASC
+            LIMIT 3;
+        """,
+        'events_with_diff_countries': """
+            SELECT e.name AS eventName, 
+                gold.countryName AS goldMedallistCountry, 
+                silver.countryName AS silverMedallistCountry
+            FROM Events e
+            JOIN (
+                SELECT ci.eventID, c.name AS countryName
+                FROM CompetesIn ci
+                JOIN Athlete a ON ci.athleteID = a.athleteID
+                JOIN Country c ON a.countryCode = c.countryCode
+                WHERE ci.athleteRank = '1'
+            ) gold ON e.eventID = gold.eventID
+            JOIN (
+                SELECT ci.eventID, c.name AS countryName
+                FROM CompetesIn ci
+                JOIN Athlete a ON ci.athleteID = a.athleteID
+                JOIN Country c ON a.countryCode = c.countryCode
+                WHERE ci.athleteRank = '2'
+            ) silver ON e.eventID = silver.eventID
+            WHERE gold.countryName != silver.countryName;
+        """,
+        'most_events_swimmer': """
+            SELECT a.name AS athlete_name, 
+                COUNT(ci.eventID) AS numEvents
+            FROM Athlete a
+            JOIN CompetesIn ci ON a.athleteID = ci.athleteID
+            GROUP BY a.athleteID, a.name
+            HAVING numEvents = (
+                SELECT COUNT(eventID)
+                FROM CompetesIn
+                GROUP BY athleteID
+                ORDER BY COUNT(eventID) DESC
+                LIMIT 1
+            );
+        """,
+        'age_difference_events': """
+            SELECT e.name AS eventName, 
+                MAX(DATEDIFF(e.date, a.birthdate) / 365.25) - MIN(DATEDIFF(e.date, a.birthdate) / 365.25) AS age_difference
+            FROM Events e
+            JOIN CompetesIn ci ON e.eventID = ci.eventID
+            JOIN Athlete a ON ci.athleteID = a.athleteID
+            GROUP BY e.eventID, e.name
+            HAVING age_difference > 10
+            ORDER BY age_difference DESC;
+        """
+    }
+    
+    if query_name not in queries:
+        return jsonify({'error': 'Query not found'}), 404
+    
+    try:
+        connection = create_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute(queries[query_name])
+        results = cursor.fetchall()
+        return jsonify(results)
+    except Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+
+# route for the query_execution page
+@app.route('/query_execution')
+def query_execution():
+    return render_template('query_execution.html')
    
 
 # test connection - made for testing whether the database was actually working
