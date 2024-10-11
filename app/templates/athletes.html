@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athletes</title>
+</head>
+
+<body>
+    <div>
+        <h1>Athletes</h1>
+        <div>
+            <a href="/">Back to Home</a>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Birthdate</th>
+                    <th>Country Code</th>
+                    <th>Gender</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- The app uses Jinja to avoid having to use JS... xD -->
+                {% if athletes %}
+                    {% for athlete in athletes %}
+                        <tr>
+                            <td>{{ athlete.athleteID }}</td>
+                            <td>{{ athlete.name }}</td>
+                            <td>{{ athlete.birthdate }}</td>
+                            <td>{{ athlete.countryCode }}</td>
+                            <td>{{ athlete.gender }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5">No athletes found.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        <div>
+            <p>Total Athletes: {{ athletes | length }}</p>
+        </div>
+    </div>
+</body>
+</html>

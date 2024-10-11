@@ -13,18 +13,38 @@ def create_db_connection():
             user='me',
             password='myUserPassword'
         )
-        return connection
+        return connection # if connection is successful, will return
     except Error as e:
-        print(f"Error connecting to MySQL database: {e}")
+        print(f"Error connecting to MySQL database: {e}") # will log errors to the console
         return None
 
-# default landing page  
+# Default landing page
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# test connection via api route
-@app.route('/api/test_connection')
+# Athletes page
+# I would like to fetch the athlete details using api routes 
+# But that would make my website too complicated and out of scope
+@app.route('/athletes')
+def athletes():
+    connection = create_db_connection()
+    if connection:
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM Athlete")
+            athletes = cursor.fetchall()
+            return render_template('athletes.html', athletes=athletes)
+        except Error as e:
+            print(f"Error: {e}")
+        finally:
+            if connection.is_connected():
+                cursor.close()
+                connection.close()
+    return "Error connecting to the database"
+
+# test connection - made for testing whether the database was actually working
+@app.route('/test_connection')
 def test_connection():
     connection = create_db_connection()
     if connection is not None and connection.is_connected():
