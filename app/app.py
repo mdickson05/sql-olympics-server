@@ -165,7 +165,9 @@ def execute_query(query_name):
             ORDER BY numParticipants DESC
         """,
         'total_medals_by_country': """
-            SELECT ci.name, ci.countryCode, 
+            SELECT 
+                ci.name, 
+                ci.countryCode, 
                 SUM(m.numGold) AS totalGold, 
                 SUM(m.numSilver) AS totalSilver, 
                 SUM(m.numBronze) AS totalBronze, 
@@ -177,7 +179,8 @@ def execute_query(query_name):
             ORDER BY totalMedals DESC
         """,
         'oldest_swimmers': """
-            SELECT a.name, 
+            SELECT 
+                a.name, 
                 a.birthdate, 
                 TIMESTAMPDIFF(YEAR, a.birthdate, CURDATE()) AS age,
                 GROUP_CONCAT(e.name SEPARATOR ', ') as Events
@@ -190,7 +193,8 @@ def execute_query(query_name):
             LIMIT 3;
         """,
         'events_with_diff_countries': """
-            SELECT e.name AS eventName, 
+            SELECT 
+                e.name AS eventName, 
                 gold.countryName AS goldMedallistCountry, 
                 silver.countryName AS silverMedallistCountry
             FROM Events e
@@ -211,7 +215,8 @@ def execute_query(query_name):
             WHERE gold.countryName != silver.countryName;
         """,
         'most_events_swimmer': """
-            SELECT a.name AS athlete_name, 
+            SELECT 
+                a.name AS athlete_name, 
                 COUNT(ci.eventID) AS numEvents
             FROM Athlete a
             JOIN CompetesIn ci ON a.athleteID = ci.athleteID
@@ -225,7 +230,8 @@ def execute_query(query_name):
             );
         """,
         'age_difference_events': """
-            SELECT e.name AS eventName, 
+            SELECT 
+                e.name AS eventName, 
                 MAX(DATEDIFF(e.date, a.birthdate) / 365.25) - MIN(DATEDIFF(e.date, a.birthdate) / 365.25) AS age_difference
             FROM Events e
             JOIN CompetesIn ci ON e.eventID = ci.eventID
