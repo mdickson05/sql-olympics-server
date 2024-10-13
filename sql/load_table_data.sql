@@ -3,7 +3,7 @@ LOAD DATA LOCAL INFILE 'data/country.csv'
 INTO TABLE Country 
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '' 
-LINES TERMINATED BY '\n' 
+LINES TERMINATED BY '\r\n' 
 IGNORE 1 ROWS;  -- Ignore the header row
 
 -- Import data into the sport table
