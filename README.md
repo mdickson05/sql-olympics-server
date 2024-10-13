@@ -148,20 +148,20 @@ Upon opening the page, you will be presented with two buttons for:
 2. Execute queries, where you can execute the 11 queries I created in my `queries.sql` files
 
 It will look like this:
-![image](https://github.com/user-attachments/assets/f934c684-418a-4b60-ae1f-04e305c60992)
+![image](images/home-page.png)
 
 #### Athletes table
 If the MySQL database is setup correctly, you'll see the following page:
-![image](https://github.com/user-attachments/assets/b15e65fa-0332-4006-a72a-3511372042bb)
+![image](images/athlete-table.png)
 
 
 Click 'Add athlete' and you'll see this form:
-![image](https://github.com/user-attachments/assets/abaff586-bed4-4b7a-b3ac-1de33b45a1be)
+![image](images/add-athlete.png)
 
 Feel free to add a new athlete, and you'll be redirected back to the Athletes table page.
 
 If you wish to update your athlete:
-![image](https://github.com/user-attachments/assets/32572067-d25d-415a-bcfb-541c7508c47b)
+![image](images/update-athlete.png)
 
 
 Finally, if you want to delete your athlete, you'll be greeted with a popup asking to confirm whether you wish to delete the athlete. Upon confirming, the athlete will be deleted. This includes their entries in the CompetesIn table as well. To test this run the following command in the MySQL server:
@@ -184,15 +184,13 @@ Empty set (0.00 sec)
 
 #### Error page
 If you add/update an athlete with an athleteID that already exists, or with a countryCode that is not in the Country table, you'll be re-directed to a page that looks like this:
-![image](https://github.com/user-attachments/assets/a9589ef1-488d-4ba2-bc16-410c2076c969)
-
+![image](images/error.png)
 Clicking the button will return you to the homepage.
 
 #### Queries page
 On the homepage, clicking on execute queries will bring you here:
-![image](https://github.com/user-attachments/assets/da361d56-21d3-49ec-bf0d-f1af5d592fd1)
+![image](images/execute-queries.png)
 
 
 Execute any one of the pre-defined queries in my `queries.sql` by clicking its respective button. The button will run the query and put the results in a table like so:
-![image](https://github.com/user-attachments/assets/f78c0684-9022-4f45-b995-fea6933babba)
-
+![image](images/results-table.png)
