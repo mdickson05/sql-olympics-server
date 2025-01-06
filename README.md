@@ -1,10 +1,6 @@
-# DBS Final Assignment User Guide
-### About Me
-- Name: Marcus Dickson
-- Student ID: 21549225
-- Lab: Thursday 10am-12pm, 314.116
+# SQL Olympics Server User Guide
 ## Introduction
-The purpose of this document is to outline how to setup and run my implementation of the assignment. The guide will cover:
+The purpose of this document is to outline how to setup and run my implementation. The guide will cover:
 
 - The specifications of the software I used, including (known) compatible software.
 - Setting up the MySQL database.
